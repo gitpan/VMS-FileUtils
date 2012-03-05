@@ -4,31 +4,37 @@
 #
 use VMS::FileUtils::Root;
 
-print "1..23\n";
+if ($^O =~ /vms/i) {
+
+    print "1..23\n";
 
 #
 #   we make sure we aren't using a known logical
 #
-$j = 0;
-while (1) {
-    $j++;
-    $dev = 'TEST_'.$$.'_'.$j;
-    last if !defined($ENV{$dev});
+    $j = 0;
+    while (1) {
+	$j++;
+	$dev = 'TEST_'.$$.'_'.$j;
+	last if !defined($ENV{$dev});
+    }
+    
+    $j = 0;
+    while (1) {
+	$j++;
+	$troot = 'TESTX_'.$$.'_'.$j;
+    last if !defined($ENV{$troot});
+    }
+    $iss = `define/job $troot $dev:[dir1.dir2.dir3.]`;
+    if ($iss) {
+	die "0 not ok\nError defining rooted logical for testing: $?\n";
+    }
+} else {
+    print "1..1\n";
 }
 
-$j = 0;
-while (1) {
-    $j++;
-    $troot = 'TESTX_'.$$.'_'.$j;
-    last if !defined($ENV{$troot});
-}
-$iss = `define/job $troot $dev:[dir1.dir2.dir3.]`;
-if ($iss) {
-    die "0 not ok\nError defining rooted logical for testing: $?\n";
-}
 
 END {
-`deassign/job $troot`;
+    `deassign/job $troot` if $^O =~ /vms/i;
 }
 
 sub report ($$;$) {
@@ -47,7 +53,10 @@ sub report ($$;$) {
 
 
 
-
+if ($^O !~ /vms/i) {
+    print "ok 1\n";
+    exit 0;
+}
 
 
 

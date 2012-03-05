@@ -1,5 +1,5 @@
 use ExtUtils::MakeMaker;
 WriteMakefile(
-              NAME => 'VMS::Fileutils::Root',
+              NAME => 'VMS::FileUtils::Root',
               VERSION_FROM => 'Root.pm'
              );

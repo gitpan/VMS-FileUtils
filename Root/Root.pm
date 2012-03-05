@@ -1,14 +1,16 @@
 #   Convert directory paths to/from rooted logical paths to evade
 #   VMS's directory depth limitations.
 #
-#   Version:        0.011
+#   Version:        0.012
 #   Author:         Charles Lane        lane@duphy4.physics.drexel.edu
-#   Revised:        4 Jan 2001
+#   Revised:        4 Mar 2012
+##### remove non-vms usage
 #
 
 =head1 NAME
 
     VMS::FileUtils::Root     - convert directory paths to and from rooted logicals
+    (only works on VMS systems)
 
 =head1 SYNOPSIS
 
@@ -23,7 +25,7 @@ $path = $r->unrooted('ROOTDIR_1:[dir3]');
 =head1 DESCRIPTION
 
 This module creates and uses rooted logical names in the /job logical
-name table.
+name table. This only works on VMS systems.
 
 =head2 new
 
@@ -63,7 +65,7 @@ use Carp;
 use strict;
 use vars qw($VERSION $ROOTNUM $Pnode $Pdev $Pdir $Pname $Ptype $Pvers);
 
-$VERSION = '0.01';
+$VERSION = '0.012';
 
 sub new {
     my $pkg = shift;
@@ -91,10 +93,11 @@ sub new {
     $b =~ s#\].*#.\]#;
 
     $ROOTNUM++;
-    $self->{rootlogical} = sprintf('ROOT_%X_%d',$$,$ROOTNUM);
-    my $rslt = `define/nolog/job/trans=conceal $self->{rootlogical} $b`;
-    carp("Error defining logical, '$rslt' status:$?\n") if $?;
-
+    if ($^O =~ /vms/i) {
+	$self->{rootlogical} = sprintf('ROOT_%X_%d',$$,$ROOTNUM);
+	my $rslt = `define/nolog/job/trans=conceal $self->{rootlogical} $b`;
+	carp("Error defining logical, '$rslt' status:$?\n") if $?;
+    }
     return $self;
 }
 
